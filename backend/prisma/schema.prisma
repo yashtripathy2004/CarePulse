@@ -1,0 +1,83 @@
+// Prisma schema file for Prescripto Doctor Appointment Booking System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  image     String?  @default("https://raw.githubusercontent.com/avinashdm/gs-images/main/prescripto/profile_pic.png")
+  address   Json?    @default("{\"line1\": \"\", \"line2\": \"\"}")
+  gender    String?  @default("Not Selected") @db.VarChar(50)
+  dob       String?  @default("Not Selected") @db.VarChar(50)
+  phone     String?  @default("0000000000") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  appointments Appointment[]
+
+  @@map("users")
+}
+
+model Doctor {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String   @db.VarChar(255)
+  email      String   @unique @db.VarChar(255)
+  password   String   @db.VarChar(255)
+  image      String
+  speciality String   @db.VarChar(100)
+  degree     String   @db.VarChar(100)
+  experience String   @db.VarChar(50)
+  about      String
+  available  Boolean? @default(true)
+  fees       Decimal  @db.Decimal(10, 2)
+  address    Json
+  date       BigInt
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  doctorSlots DoctorSlot[]
+  appointments Appointment[]
+
+  @@map("doctors")
+}
+
+model DoctorSlot {
+  id        String   @id @default(uuid()) @db.Uuid
+  doctorId  String   @map("doctor_id") @db.Uuid
+  slotDate  String   @map("slot_date") @db.VarChar(50)
+  slotTime  String   @map("slot_time") @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, slotDate, slotTime], name: "unique_doctor_slot")
+  @@map("doctor_slots")
+}
+
+model Appointment {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  doctorId    String   @map("doctor_id") @db.Uuid
+  slotDate    String   @map("slot_date") @db.VarChar(50)
+  slotTime    String   @map("slot_time") @db.VarChar(50)
+  userData    Json     @map("user_data")
+  docData     Json     @map("doc_data")
+  amount      Decimal  @db.Decimal(10, 2)
+  date        BigInt
+  cancelled   Boolean? @default(false)
+  payment     Boolean? @default(false)
+  isCompleted Boolean? @default(false) @map("is_completed")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  @@map("appointments")
+}
