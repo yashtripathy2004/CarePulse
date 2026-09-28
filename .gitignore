@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Environment variables (contains secrets)
+.env
+backend/.env
+frontend/.env
+admin/.env
+
+# Build outputs
+dist/
+build/
+
+# Prisma
+backend/prisma/migrations/**/migration_lock.toml
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Misc
+*.tgz
+.cache/
